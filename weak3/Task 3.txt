@@ -1,0 +1,387 @@
+﻿#include <iostream>
+#include <string>
+#include <fstream>
+using namespace std;
+
+class CarStack {
+private:
+    string* cars;          
+    string* tempStack;      
+    int maxSize;          
+    int topIndex;           
+    int tempTopIndex;      
+
+public:
+    CarStack(int size) {
+        maxSize = size;
+        cars = new string[maxSize];
+        tempStack = new string[maxSize];
+        topIndex = -1;
+        tempTopIndex = -1;
+    }
+
+    ~CarStack() {
+        delete[] cars;
+        delete[] tempStack;
+    }
+
+    void pushCar(string carNumber) {
+        if (isFull()) {
+            cout << "Parking Lot is FULL! Cannot park car " << carNumber << endl;
+            return;
+        }
+        cars[++topIndex] = carNumber;
+        cout << "Car " << carNumber << " parked successfully at position " << (topIndex + 1) << endl;
+    }
+
+    string popCar() {
+        if (isEmpty()) {
+            cout << "  Parking Lot is EMPTY! No car to remove." << endl;
+            return "";
+        }
+        return cars[topIndex--];
+    }
+
+    string topCar() const {
+        if (isEmpty()) {
+            return "";
+        }
+        return cars[topIndex];
+    }
+
+    bool isEmpty() const {
+        return topIndex == -1;
+    }
+
+    bool isFull() const {
+        return topIndex == maxSize - 1;
+    }
+
+    void parkCar(string carNumber) {
+        if (searchCar(carNumber)) {
+            cout << "  Car " << carNumber << " is already parked!" << endl;
+            return;
+        }
+        pushCar(carNumber);
+    }
+
+    void removeCar(string carNumber) {
+        if (isEmpty()) {
+            cout << "  Parking Lot is EMPTY! No car to remove." << endl;
+            return;
+        }
+
+        if (!searchCar(carNumber)) {
+            cout << " Car " << carNumber << " not found in the parking lot!" << endl;
+            return;
+        }
+
+        cout << " Removing car " << carNumber << " from parking..." << endl;
+
+        while (!isEmpty() && topCar() != carNumber) {
+            string tempCar = popCar();
+            tempStack[++tempTopIndex] = tempCar;
+            cout << "   Moving car " << tempCar << " to waiting area" << endl;
+        }
+
+        if (!isEmpty() && topCar() == carNumber) {
+            string removedCar = popCar();
+            cout << "Car " << removedCar << " removed from parking" << endl;
+        }
+
+        while (tempTopIndex >= 0) {
+            string tempCar = tempStack[tempTopIndex--];
+            pushCar(tempCar);
+            cout << "   Returning car " << tempCar << " to parking" << endl;
+        }
+
+        cout << "Car " << carNumber << " successfully removed!" << endl;
+    }
+
+    void displayParkedCars() const {
+        cout << "         PARKING LOT STATUS" << endl;
+
+        if (isEmpty()) {
+            cout << "Parking Lot is EMPTY!" << endl;
+        }
+        else {
+            cout << " Parked Cars (Top to Bottom):" << endl;
+
+            for (int i = topIndex; i >= 0; i--) {
+                cout << "   Position " << (topIndex - i + 1) << ": ";
+                cout << "Car [" << cars[i] << "]";
+
+                if (i == topIndex) {
+                    cout << " <-- TOP (Last In)";
+                }
+                if (i == 0) {
+                    cout << " <-- BOTTOM (First In)";
+                }
+                cout << endl;
+            }
+
+            cout << "   Total Cars: " << (topIndex + 1) << "/" << maxSize << endl;
+        }
+    }
+
+    void displayCarCount() const {
+        cout << "Parking Lot Statistics:" << endl;
+        cout << "   Total Cars Parked: " << (topIndex + 1) << "/" << maxSize << endl;
+        cout << "   Available Spaces: " << (maxSize - (topIndex + 1)) << endl;
+
+        if (!isEmpty()) {
+            cout << "   Top Car (Last In): " << cars[topIndex] << endl;
+            cout << "   Bottom Car (First In): " << cars[0] << endl;
+        }
+    }
+
+    bool searchCar(string carNumber) const {
+        for (int i = 0; i <= topIndex; i++) {
+            if (cars[i] == carNumber) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void viewTopCar() const {
+        if (isEmpty()) {
+            cout << "  Parking Lot is EMPTY! No car at the top." << endl;
+        }
+        else {
+            cout << "Top Car (Last In): " << cars[topIndex] << endl;
+            cout << "   Position from entrance: " << (topIndex + 1) << endl;
+        }
+    }
+
+    void clearParking() {
+        if (isEmpty()) {
+            cout << "  Parking Lot is already EMPTY!" << endl;
+            return;
+        }
+
+        cout << " Clearing entire parking lot..." << endl;
+        while (!isEmpty()) {
+            cout << "   Removing car " << popCar() << endl;
+        }
+        cout << "Parking lot cleared successfully!" << endl;
+    }
+
+    void saveToFile(string filename) const {
+        ofstream file(filename.c_str());
+        if (!file) {
+            cout << " Error: Cannot create file!" << endl;
+            return;
+        }
+
+        file << maxSize << endl;
+        file << topIndex << endl;
+
+        for (int i = 0; i <= topIndex; i++) {
+            file << cars[i] << endl;
+        }
+
+        file.close();
+        cout << "Parking data saved to " << filename << endl;
+    }
+
+    void loadFromFile(string filename) {
+        ifstream file(filename.c_str());
+        if (!file) {
+            cout << " Error: Cannot open file!" << endl;
+            return;
+        }
+
+        int fileMaxSize, fileTopIndex;
+        file >> fileMaxSize;
+        file >> fileTopIndex;
+
+        delete[] cars;
+        delete[] tempStack;
+
+        maxSize = fileMaxSize;
+        cars = new string[maxSize];
+        tempStack = new string[maxSize];
+        topIndex = -1;
+        tempTopIndex = -1;
+
+        string value;
+        for (int i = 0; i <= fileTopIndex; i++) {
+            if (file >> value) {
+                cars[++topIndex] = value;
+            }
+        }
+
+        file.close();
+        cout << "Parking data loaded from " << filename << endl;
+    }
+
+    int getCurrentSize() const {
+        return topIndex + 1;
+    }
+
+    int getCapacity() const {
+        return maxSize;
+    }
+};
+
+void clearInput() {
+    while (cin.get() != '\n');
+}
+
+void displayMenu() {
+    cout << "   PARKING LOT MANAGEMENT SYSTEM" << endl;
+    cout << "   1. Park a New Car" << endl;
+    cout << "   2. Remove a Car" << endl;
+    cout << "   3. View All Parked Cars" << endl;
+    cout << "   4. Search for a Car" << endl;
+    cout << "   5. View Total Cars Count" << endl;
+    cout << "   6. View Top Car" << endl;
+    cout << "   7. Clear Parking Lot" << endl;
+    cout << "   8. Save Parking Data" << endl;
+    cout << "   9. Load Parking Data" << endl;
+    cout << "   10. Exit" << endl;
+    cout << "Enter your choice (1-10): ";
+}
+
+int main() {
+    CarStack parking(8);
+    int choice;
+    string carNumber;
+    string filename;
+
+    cout << "\n=== WELCOME TO PARKING LOT MANAGEMENT SYSTEM ===" << endl;
+    cout << "Maximum capacity: 8 cars" << endl;
+    cout << "Cars are parked in LIFO order (Last In First Out)" << endl;
+    cout << "You can search, add, and remove any car!" << endl;
+
+    do {
+        displayMenu();
+        cin >> choice;
+
+        if (cin.fail()) {
+            cout << " Invalid input! Please enter a number." << endl;
+            cin.clear();
+            clearInput();
+            continue;
+        }
+
+        switch (choice) {
+        case 1: 
+        {
+            cout << "\nEnter car number/plate to park: ";
+            cin >> carNumber;
+            parking.parkCar(carNumber);
+        }
+        break;
+
+        case 2: 
+        {
+            if (parking.isEmpty()) {
+                cout << "  Parking lot is empty! No cars to remove." << endl;
+            }
+            else {
+                cout << "\nEnter car number to remove: ";
+                cin >> carNumber;
+                parking.removeCar(carNumber);
+            }
+        }
+        break;
+
+        case 3: 
+            parking.displayParkedCars();
+            break;
+
+        case 4:
+        {
+            if (parking.isEmpty()) {
+                cout << "  Parking lot is empty! No cars to search." << endl;
+            }
+            else {
+                cout << "\nEnter car number to search: ";
+                cin >> carNumber;
+
+                if (parking.searchCar(carNumber)) {
+                    cout << "Car " << carNumber << " is FOUND in the parking lot!" << endl;
+                }
+                else {
+                    cout << " Car " << carNumber << " is NOT found in the parking lot!" << endl;
+                }
+            }
+        }
+        break;
+
+        case 5: 
+            parking.displayCarCount();
+            break;
+
+        case 6: 
+            parking.viewTopCar();
+            break;
+
+        case 7:
+        {
+            if (parking.isEmpty()) {
+                cout << "  Parking lot is already empty!" << endl;
+            }
+            else {
+                char confirm;
+                cout << "  Are you sure you want to clear the entire parking lot? (y/n): ";
+                cin >> confirm;
+
+                if (confirm == 'y' || confirm == 'Y') {
+                    parking.clearParking();
+                }
+                else {
+                    cout << "Clear operation cancelled." << endl;
+                }
+            }
+        }
+        break;
+
+        case 8:
+        {
+            cout << "\nEnter filename to save: ";
+            cin >> filename;
+            parking.saveToFile(filename);
+        }
+        break;
+
+        case 9:
+        {
+            cout << "\nEnter filename to load: ";
+            cin >> filename;
+            parking.loadFromFile(filename);
+        }
+        break;
+
+        case 10:
+        {
+            char saveChoice;
+            cout << "\nDo you want to save parking data before exiting? (y/n): ";
+            cin >> saveChoice;
+
+            if (saveChoice == 'y' || saveChoice == 'Y') {
+                cout << "Enter filename: ";
+                cin >> filename;
+                parking.saveToFile(filename);
+            }
+
+            cout << "   THANK YOU FOR USING PARKING SYSTEM" << endl;
+            cout << "\nFinal Parking Status:" << endl;
+            parking.displayCarCount();
+            if (!parking.isEmpty()) {
+                parking.displayParkedCars();
+            }
+            cout << "Goodbye! Have a great day!" << endl;
+        }
+        break;
+
+        default:
+            cout << " Invalid choice! Please enter a number between 1 and 10." << endl;
+        }
+
+    } while (choice != 10);
+
+    return 0;
+}

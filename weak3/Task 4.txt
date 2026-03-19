@@ -1,0 +1,272 @@
+﻿#include <iostream>
+#include <string>
+using namespace std;
+
+class Stack {
+private:
+    string* arr;
+    int topIndex;
+    int capacity;
+    
+public:
+    Stack(int size = 100) {
+        arr = new string[size];
+        capacity = size;
+        topIndex = -1;
+    }
+    
+    ~Stack() {
+        delete[] arr;
+    }
+    
+    void push(string value) {
+        if (topIndex == capacity - 1) {
+            cout << "Stack overflow!" << endl;
+            return;
+        }
+        arr[++topIndex] = value;
+    }
+    
+    string pop() {
+        if (isEmpty()) {
+            return "";
+        }
+        return arr[topIndex--];
+    }
+    
+    string top() {
+        if (isEmpty()) {
+            return "";
+        }
+        return arr[topIndex];
+    }
+    
+    bool isEmpty() {
+        return topIndex == -1;
+    }
+    
+    int size() {
+        return topIndex + 1;
+    }
+    
+    void clear() {
+        topIndex = -1;
+    }
+};
+
+class TextEditor {
+private:
+    string text;
+    Stack undoStack;
+    Stack redoStack;
+    
+public:
+    TextEditor() : undoStack(50), redoStack(50) {
+        text = "";
+    }
+    
+    void typeChar(char ch) {
+        string oldText = text;
+        undoStack.push(oldText);
+        
+        text = text + ch;
+        
+        redoStack.clear();
+        
+        cout << "\nTyped: " << ch << endl;
+        cout << "Current: " << text << endl;
+    }
+    
+    void deleteChar() {
+        if (text.empty()) {
+            cout << "\nNothing to delete!" << endl;
+            return;
+        }
+        
+        string oldText = text;
+        undoStack.push(oldText);
+        
+        char deleted = text[text.length() - 1];
+        text = text.substr(0, text.length() - 1);
+        
+        redoStack.clear();
+        
+        cout << "\nDeleted: " << deleted << endl;
+        cout << "Current: " << text << endl;
+    }
+    
+    void undo() {
+        if (undoStack.isEmpty()) {
+            cout << "\nNothing to undo!" << endl;
+            return;
+        }
+        
+        string currentText = text;
+        redoStack.push(currentText);
+        
+        text = undoStack.pop();
+        
+        cout << "\nUndo performed" << endl;
+        cout << "Current: " << text << endl;
+    }
+    
+    void redo() {
+        if (redoStack.isEmpty()) {
+            cout << "\nNothing to redo!" << endl;
+            return;
+        }
+        
+        string currentText = text;
+        undoStack.push(currentText);
+        
+        text = redoStack.pop();
+        
+        cout << "\nRedo performed" << endl;
+        cout << "Current: " << text << endl;
+    }
+    
+    void display() const {
+        cout << "\nCurrent Text: " << text << endl;
+        if (text.empty()) {
+            cout << "(empty)" << endl;
+        }
+    }
+    
+    void showStacks() const {
+        cout << "\nUndo Stack Size: " << undoStack.size() << endl;
+        cout << "Redo Stack Size: " << redoStack.size() << endl;
+    }
+    
+    void typeWord() {
+        string word;
+        cout << "\nEnter word: ";
+        cin >> word;
+        
+        for (int i = 0; i < word.length(); i++) {
+            string oldText = text;
+            undoStack.push(oldText);
+            
+            text = text + word[i];
+            
+            redoStack.clear();
+        }
+        
+        cout << "Word typed: " << word << endl;
+        cout << "Current: " << text << endl;
+    }
+    
+    void clear() {
+        if (text.empty()) {
+            cout << "\nAlready empty!" << endl;
+            return;
+        }
+        
+        char confirm;
+        cout << "\nClear all? (y/n): ";
+        cin >> confirm;
+        
+        if (confirm == 'y' || confirm == 'Y') {
+            string oldText = text;
+            undoStack.push(oldText);
+            
+            text = "";
+            
+            redoStack.clear();
+            
+            cout << "Cleared all text" << endl;
+        } else {
+            cout << "Cancelled" << endl;
+        }
+    }
+    
+    string getText() const {
+        return text;
+    }
+};
+
+void showMenu() {
+    cout << "\n======================" << endl;
+    cout << "   TEXT EDITOR" << endl;
+    cout << "1. Type character" << endl;
+    cout << "2. Delete character" << endl;
+    cout << "3. Undo" << endl;
+    cout << "4. Redo" << endl;
+    cout << "5. Display text" << endl;
+    cout << "6. Show stacks" << endl;
+    cout << "7. Type word" << endl;
+    cout << "8. Clear all" << endl;
+    cout << "9. Exit" << endl;
+    cout << "Choice: ";
+}
+
+void clearInput() {
+    while (cin.get() != '\n');
+}
+
+int main() {
+    TextEditor editor;
+    int choice;
+    char ch;
+    
+    cout << "\n=== SIMPLE TEXT EDITOR ===" << endl;
+    cout << "Undo/Redo using custom stacks" << endl;
+    
+    do {
+        showMenu();
+        cin >> choice;
+        
+        if (cin.fail()) {
+            cout << "\nInvalid input!" << endl;
+            cin.clear();
+            clearInput();
+            continue;
+        }
+        
+        switch(choice) {
+            case 1:
+                cout << "Enter character: ";
+                cin >> ch;
+                editor.typeChar(ch);
+                break;
+                
+            case 2:
+                editor.deleteChar();
+                break;
+                
+            case 3:
+                editor.undo();
+                break;
+                
+            case 4:
+                editor.redo();
+                break;
+                
+            case 5:
+                editor.display();
+                break;
+                
+            case 6:
+                editor.showStacks();
+                break;
+                
+            case 7:
+                editor.typeWord();
+                break;
+                
+            case 8:
+                editor.clear();
+                break;
+                
+            case 9:
+                cout << "\nFinal text: " << editor.getText() << endl;
+                cout << "Goodbye!" << endl;
+                break;
+                
+            default:
+                cout << "\nInvalid choice!" << endl;
+        }
+        
+    } while (choice != 9);
+    
+    return 0;
+}

@@ -10,19 +10,18 @@ private:
     int capacity;
 
 public:
-    // Constructor
+    
     myStack(int size) {
         capacity = size;
         arr = new T[capacity];
         topIndex = -1;
     }
 
-    // Destructor
+    
     ~myStack() {
         delete[] arr;
     }
 
-    // Push
     void push(T value) {
         if (isFull()) {
             cout << "Stack Overflow!\n";
@@ -31,7 +30,6 @@ public:
         arr[++topIndex] = value;
     }
 
-    // Pop
     T pop() {
         if (isEmpty()) {
             cout << "Stack Underflow!\n";
@@ -40,7 +38,6 @@ public:
         return arr[topIndex--];
     }
 
-    // Top
     T top() const {
         if (isEmpty()) {
             cout << "Stack is empty!\n";
@@ -49,17 +46,14 @@ public:
         return arr[topIndex];
     }
 
-    // isEmpty
     bool isEmpty() const {
         return topIndex == -1;
     }
 
-    // isFull
     bool isFull() const {
         return topIndex == capacity - 1;
     }
 
-    // Display
     void display() const {
         if (isEmpty()) {
             cout << "Stack is empty!\n";

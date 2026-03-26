@@ -1,0 +1,136 @@
+#include<iostream>
+using namespace std;
+
+template <typename T>
+class abstractqueue{
+public:
+    virtual void enqueue(T value)=0;
+    virtual T dequeue()=0;
+    virtual T front() const =0;
+    virtual bool isempty() const=0;
+    virtual bool isfull() const=0;
+};
+
+template <typename T>
+class myqueue: public abstractqueue<T>{
+private:
+    T* arr;
+    int frontindex;
+    int rearindex;
+    int size;
+
+public:
+    myqueue(int s){
+        size = s;
+        arr = new T[size];
+        frontindex = -1;
+        rearindex = -1;
+    }
+
+    void enqueue(T value){
+        if(rearindex == size - 1){
+            cout << "queue is full\n";
+        }
+        else{
+            if(frontindex == -1){
+                frontindex = 0;
+            }
+            rearindex++;
+            arr[rearindex] = value;
+            cout << value << " inserted\n";
+        }
+    }
+
+    T dequeue(){
+        if(frontindex == -1 || frontindex > rearindex){
+            cout << "queue is empty\n";
+            return T();
+        }
+        else{
+            T val = arr[frontindex];
+            frontindex++;
+            return val;
+        }
+    }
+
+    T front() const{
+        if(frontindex == -1 || frontindex > rearindex){
+            cout << "queue is empty\n";
+            return T();
+        }
+        return arr[frontindex];
+    }
+
+    bool isempty() const{
+        if(frontindex == -1 || frontindex > rearindex)
+            return true;
+        else
+            return false;
+    }
+
+    bool isfull() const{
+        if(rearindex == size - 1)
+            return true;
+        else
+            return false;
+    }
+
+    void display(){
+        if(isempty()){
+            cout << "queue is empty\n";
+        }
+        else{
+            cout << "queue: ";
+            for(int i = frontindex; i <= rearindex; i++){
+                cout << arr[i] << " ";
+            }
+            cout << endl;
+        }
+    }
+};
+
+int main(){
+    int size;
+    cout << "Enter size: ";
+    cin >> size;
+
+    myqueue<int> q(size);
+
+    int choice, value;
+
+    do{
+        cout << "\n1. Enqueue\n2. Dequeue\n3. Front\n4. isEmpty\n5. isFull\n6. Display\n0. Exit\n";
+        cout << "Enter choice: ";
+        cin >> choice;
+
+        if(choice == 1){
+            cout << "Enter value: ";
+            cin >> value;
+            q.enqueue(value);
+        }
+        else if(choice == 2){
+            cout << "Removed: " << q.dequeue() << endl;
+        }
+        else if(choice == 3){
+            cout << "Front: " << q.front() << endl;
+        }
+        else if(choice == 4){
+            if(q.isempty())
+                cout << "Queue is empty\n";
+            else
+                cout << "Queue is not empty\n";
+        }
+        else if(choice == 5){
+            if(q.isfull())
+                cout << "Queue is full\n";
+            else
+                cout << "Queue is not full\n";
+        }
+        else if(choice == 6){
+            q.display();
+        }
+
+    }while(choice != 0);
+
+    return 0;
+}

@@ -1,0 +1,118 @@
+#include<iostream>
+using namespace std;
+
+template <typename T>
+class myqueue{
+private:
+    T* stack1;
+    T* stack2;
+    int top1, top2;
+    int size;
+
+public:
+    myqueue(int s){
+        size = s;
+        stack1 = new T[size];
+        stack2 = new T[size];
+        top1 = -1;
+        top2 = -1;
+    }
+
+    void enqueue(T value){
+        if(top1 == size - 1){
+            cout << "Queue is full\n";
+        }
+        else{
+            top1++;
+            stack1[top1] = value;
+            cout << value << " inserted\n";
+        }
+    }
+    T dequeue(){
+        if(top1 == -1 && top2 == -1){
+            cout << "Queue is empty\n";
+            return T();
+        }
+        else{
+            if(top2 == -1){
+                while(top1 != -1){
+                    top2++;
+                    stack2[top2] = stack1[top1];
+                    top1--;
+                }
+            }
+            T val = stack2[top2];
+            top2--;
+            return val;
+        }
+    }
+    T front(){
+        if(top1 == -1 && top2 == -1){
+            cout << "Queue is empty\n";
+            return T();
+        }
+        else{
+            if(top2 == -1){
+                while(top1 != -1){
+                    top2++;
+                    stack2[top2] = stack1[top1];
+                    top1--;
+                }
+            }
+
+            return stack2[top2];
+        }
+    }
+    void display(){
+        if(top1 == -1 && top2 == -1){
+            cout << "Queue is empty\n";
+        }
+        else{
+            cout << "Queue: ";
+
+            for(int i = top2; i >= 0; i--){
+                cout << stack2[i] << " ";
+            }
+
+            for(int i = 0; i <= top1; i++){
+                cout << stack1[i] << " ";
+            }
+
+            cout << endl;
+        }
+    }
+};
+
+int main(){
+    int size;
+    cout << "Enter size: ";
+    cin >> size;
+
+    myqueue<int> q(size);
+
+    int choice, value;
+
+    do{
+        cout << "\n1. Enqueue\n2. Dequeue\n3. Front\n4. Display\n0. Exit\n";
+        cout << "Enter choice: ";
+        cin >> choice;
+
+        if(choice == 1){
+            cout << "Enter value: ";
+            cin >> value;
+            q.enqueue(value);
+        }
+        else if(choice == 2){
+            cout << "Removed: " << q.dequeue() << endl;
+        }
+        else if(choice == 3){
+            cout << "Front: " << q.front() << endl;
+        }
+        else if(choice == 4){
+            q.display();
+        }
+
+    }while(choice != 0);
+
+    return 0;
+}

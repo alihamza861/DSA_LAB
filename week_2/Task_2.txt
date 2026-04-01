@@ -1,0 +1,52 @@
+#include <iostream>
+using namespace std;
+
+class Employee {
+    public:
+    virtual void calculateSalary() = 0;  
+    virtual ~Employee() {}  
+};
+
+class FullTimeEmployee : public Employee {
+    private:
+    int monthlySalary; 
+    
+    public:
+    FullTimeEmployee(int s) {
+        monthlySalary = s;
+    }
+    
+    void calculateSalary()  {  
+        cout << "Full-time Employee Salary " << monthlySalary<<endl;
+    }
+};
+
+class PartTimeEmployee : public Employee {
+    private:
+    int hourlyRate;    
+    int hoursWorked;   
+    
+    public:
+    PartTimeEmployee(int r, int h) {
+        hourlyRate = r;
+        hoursWorked = h;
+    }
+    
+    void calculateSalary()  {
+    int totalSalary = hourlyRate * hoursWorked;
+    cout << "Part-time  Salary " << totalSalary << endl;
+    }
+};
+
+int main() {
+    
+    FullTimeEmployee fullTimeEmp(5000); 
+    
+    PartTimeEmployee partTimeEmp(20, 80);  
+    
+    fullTimeEmp.calculateSalary();
+    partTimeEmp.calculateSalary();
+    
+    
+    return 0;
+}

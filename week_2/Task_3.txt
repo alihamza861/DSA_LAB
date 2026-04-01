@@ -1,0 +1,180 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+class Item {
+protected:
+    char title[100];
+public:
+    Item(const char* t) {
+        strcpy(title, t);
+    }
+    virtual void display() = 0;
+    virtual bool compare(const char* key) {
+        return strcmp(title, key) == 0;
+    }
+    virtual ~Item() {}
+};
+
+class Book : public Item {
+private:
+    char author[100];
+    int pages;
+public:
+    Book(const char* t, const char* a, int p) : Item(t) {
+        strcpy(author, a);
+        pages = p;
+    }
+    
+    void display() {
+        cout << "Book: " << title << " by " << author << ", Pages: " << pages << endl;
+    }
+    
+    int getPages() { return pages; }
+};
+class Newspaper : public Item {
+private:
+    char date[20];
+    char edition[30];
+public:
+    Newspaper(const char* t, const char* d, const char* e) : Item(t) {
+        strcpy(date, d);
+        strcpy(edition, e);
+    }
+    
+    void display() {
+        cout << "Newspaper: " << title << ", Date: " << date << ", Edition: " << edition << endl;
+    }
+    
+    const char* getEdition() { return edition; }
+};
+class Library {
+private:
+    Book* books[100];
+    Newspaper* newspapers[100];
+    int bookCount;
+    int newspaperCount;
+    
+public:
+    Library() {
+        bookCount = 0;
+        newspaperCount = 0;
+    }
+    
+    void addBook(Book& b) {
+        books[bookCount] = &b;
+        bookCount++;
+    }
+    
+    void addNewspaper(Newspaper& n) {
+        newspapers[newspaperCount] = &n;
+        newspaperCount++;
+    }
+    
+    void displayCollection() {
+        cout << "\n--- Library Collection ---" << endl;
+        cout << "Books:" << endl;
+        for(int i = 0; i < bookCount; i++) {
+            cout << "  ";
+            books[i]->display();
+        }
+        
+        cout << "\nNewspapers:" << endl;
+        for(int i = 0; i < newspaperCount; i++) {
+            cout << "  ";
+            newspapers[i]->display();
+        }
+    }
+    
+    void sortBooksByPages() {
+        for(int i = 0; i < bookCount - 1; i++) {
+            for(int j = 0; j < bookCount - i - 1; j++) {
+                if(books[j]->getPages() > books[j + 1]->getPages()) {
+                    Book* temp = books[j];
+                    books[j] = books[j + 1];
+                    books[j + 1] = temp;
+                }
+            }
+        }
+        cout << "\nBooks sorted by pages!" << endl;
+    }
+    
+    void sortNewspapersByEdition() {
+        for(int i = 0; i < newspaperCount - 1; i++) {
+            for(int j = 0; j < newspaperCount - i - 1; j++) {
+                if(strcmp(newspapers[j]->getEdition(), newspapers[j + 1]->getEdition()) > 0) {
+                    Newspaper* temp = newspapers[j];
+                    newspapers[j] = newspapers[j + 1];
+                    newspapers[j + 1] = temp;
+                }
+            }
+        }
+        cout << "\nNewspapers sorted by edition!" << endl;
+    }
+    
+    Book* searchBookByTitle(const char* title) {
+        for(int i = 0; i < bookCount; i++) {
+            if(books[i]->compare(title)) {
+                return books[i];
+            }
+        }
+        return NULL;
+    }
+    
+    Newspaper* searchNewspaperByName(const char* name) {
+        for(int i = 0; i < newspaperCount; i++) {
+            if(newspapers[i]->compare(name)) {
+                return newspapers[i];
+            }
+        }
+        return NULL;
+    }
+};
+
+int main() {
+    cout << "=== LIBRARY MANAGEMENT SYSTEM ===\n" << endl;
+    
+    Book book1("The Catcher in the Rye", "J.D. Salinger", 277);
+    Book book2("To Kill a Mockingbird", "Harper Lee", 324);
+    Book book3("1984", "George Orwell", 328);
+
+    Newspaper newspaper1("Washington Post", "2024-10-13", "Morning Edition");
+    Newspaper newspaper2("The Times", "2024-10-12", "Weekend Edition");
+    Newspaper newspaper3("Daily News", "2024-10-13", "Evening Edition");
+    
+    Library library;
+
+    library.addBook(book1);
+    library.addBook(book2);
+    library.addBook(book3);
+    library.addNewspaper(newspaper1);
+    library.addNewspaper(newspaper2);
+    library.addNewspaper(newspaper3);
+    
+    cout << "BEFORE SORTING:";
+    library.displayCollection();
+    
+    library.sortBooksByPages();
+    library.sortNewspapersByEdition();
+    
+    cout << "\nAFTER SORTING:";
+    library.displayCollection();
+    
+    cout << "\n--- SEARCH RESULTS ---" << endl;
+    Book* foundBook = library.searchBookByTitle("1984");
+    if (foundBook) {
+        cout << "Found Book: ";
+        foundBook->display();
+    } else {
+        cout << "Book not found." << endl;
+    }
+    
+    Newspaper* foundNewspaper = library.searchNewspaperByName("The Times");
+    if (foundNewspaper) {
+        cout << "Found Newspaper: ";
+        foundNewspaper->display();
+    } else {
+        cout << "Newspaper not found." << endl;
+    }
+    
+    return 0;
+}

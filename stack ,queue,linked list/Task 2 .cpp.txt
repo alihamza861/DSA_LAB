@@ -1,0 +1,394 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Node
+{
+public:
+    int rollNo;
+    string name;
+    float marks;
+    Node* next;
+
+    Node(int r, string n, float m)
+    {
+        rollNo = r;
+        name = n;
+        marks = m;
+        next = NULL;
+    }
+};
+
+class StudentList
+{
+    Node* head;
+
+public:
+    StudentList()
+    {
+        head = NULL;
+    }
+
+    void insertAtBeginning(int r, string n, float m)
+    {
+        Node* newNode = new Node(r, n, m);
+        newNode->next = head;
+        head = newNode;
+        cout << "Record inserted at beginning." << endl;
+    }
+
+    void insertAtEnd(int r, string n, float m)
+    {
+        Node* newNode = new Node(r, n, m);
+
+        if (head == NULL)
+        {
+            head = newNode;
+            cout << "Record inserted at end." << endl;
+            return;
+        }
+
+        Node* temp = head;
+        while (temp->next != NULL)
+        {
+            temp = temp->next;
+        }
+
+        temp->next = newNode;
+        cout << "Record inserted at end." << endl;
+    }
+
+    void insertAfterRoll(int targetRoll, int r, string n, float m)
+    {
+        if (head == NULL)
+        {
+            cout << "List is empty. Cannot insert after roll number." << endl;
+            return;
+        }
+
+        Node* temp = head;
+        while (temp != NULL && temp->rollNo != targetRoll)
+        {
+            temp = temp->next;
+        }
+
+        if (temp == NULL)
+        {
+            cout << "Roll number " << targetRoll << " not found." << endl;
+            return;
+        }
+
+        Node* newNode = new Node(r, n, m);
+        newNode->next = temp->next;
+        temp->next = newNode;
+        cout << "Record inserted after roll number " << targetRoll << "." << endl;
+    }
+
+    void deleteRecord(int r)
+    {
+        if (head == NULL)
+        {
+            cout << "List is empty. Nothing to delete." << endl;
+            return;
+        }
+
+        if (head->rollNo == r)
+        {
+            Node* temp = head;
+            head = head->next;
+            delete temp;
+            cout << "Record with roll number " << r << " deleted." << endl;
+            return;
+        }
+
+        Node* prev = head;
+        Node* curr = head->next;
+
+        while (curr != NULL && curr->rollNo != r)
+        {
+            prev = curr;
+            curr = curr->next;
+        }
+
+        if (curr == NULL)
+        {
+            cout << "Roll number " << r << " not found." << endl;
+            return;
+        }
+
+        prev->next = curr->next;
+        delete curr;
+        cout << "Record with roll number " << r << " deleted." << endl;
+    }
+
+    void display()
+    {
+        if (head == NULL)
+        {
+            cout << "No records to display." << endl;
+            return;
+        }
+
+        cout << "Roll No  Name                  Marks" << endl;
+
+        Node* temp = head;
+        while (temp != NULL)
+        {
+            cout << temp->rollNo << "        " << temp->name;
+
+            int spaces = 22 - temp->name.length();
+            for (int i = 0; i < spaces; i++)
+            {
+                cout << " ";
+            }
+
+            cout << temp->marks << endl;
+            temp = temp->next;
+        }
+
+    }
+
+    void search(int r)
+    {
+        if (head == NULL)
+        {
+            cout << "List is empty." << endl;
+            return;
+        }
+
+        Node* temp = head;
+        while (temp != NULL && temp->rollNo != r)
+        {
+            temp = temp->next;
+        }
+
+        if (temp == NULL)
+        {
+            cout << "Student with roll number " << r << " not found." << endl;
+            return;
+        }
+
+        cout << "Roll No  : " << temp->rollNo << endl;
+        cout << "Name     : " << temp->name << endl;
+        cout << "Marks    : " << temp->marks << endl;
+    }
+
+    void updateRecord(int r)
+    {
+        if (head == NULL)
+        {
+            cout << "List is empty." << endl;
+            return;
+        }
+
+        Node* temp = head;
+        while (temp != NULL && temp->rollNo != r)
+        {
+            temp = temp->next;
+        }
+
+        if (temp == NULL)
+        {
+            cout << "Student with roll number " << r << " not found." << endl;
+            return;
+        }
+
+        int choice;
+        cout << "What do you want to update?" << endl;
+        cout << "1. Name" << endl;
+        cout << "2. Marks" << endl;
+        cout << "3. Both" << endl;
+        cout << "Enter choice: ";
+        cin >> choice;
+
+        if (choice == 1)
+        {
+            string newName;
+            cout << "Enter new name: ";
+            cin.ignore();
+            getline(cin, newName);
+            temp->name = newName;
+            cout << "Name updated successfully." << endl;
+        }
+        else if (choice == 2)
+        {
+            float newMarks;
+            cout << "Enter new marks: ";
+            cin >> newMarks;
+            temp->marks = newMarks;
+            cout << "Marks updated successfully." << endl;
+        }
+        else if (choice == 3)
+        {
+            string newName;
+            float newMarks;
+            cout << "Enter new name: ";
+            cin.ignore();
+            getline(cin, newName);
+            cout << "Enter new marks: ";
+            cin >> newMarks;
+            temp->name = newName;
+            temp->marks = newMarks;
+            cout << "Record updated successfully." << endl;
+        }
+        else
+        {
+            cout << "Invalid choice." << endl;
+        }
+    }
+
+    void calculateStatistics()
+    {
+        if (head == NULL)
+        {
+            cout << "List is empty. No statistics available." << endl;
+            return;
+        }
+
+        float highest = head->marks;
+        float lowest = head->marks;
+        float total = 0;
+        int count = 0;
+
+        string highestName = head->name;
+        string lowestName = head->name;
+        int highestRoll = head->rollNo;
+        int lowestRoll = head->rollNo;
+
+        Node* temp = head;
+        while (temp != NULL)
+        {
+            if (temp->marks > highest)
+            {
+                highest = temp->marks;
+                highestName = temp->name;
+                highestRoll = temp->rollNo;
+            }
+            if (temp->marks < lowest)
+            {
+                lowest = temp->marks;
+                lowestName = temp->name;
+                lowestRoll = temp->rollNo;
+            }
+            total += temp->marks;
+            count++;
+            temp = temp->next;
+        }
+
+        float average = total / count;
+
+        cout << "Total Students : " << count << endl;
+        cout << "Highest Marks  : " << highest << " (" << highestName << ", Roll: " << highestRoll << ")" << endl;
+        cout << "Lowest Marks   : " << lowest << " (" << lowestName << ", Roll: " << lowestRoll << ")" << endl;
+        cout << "Average Marks  : " << average << endl;
+    }
+};
+
+int main()
+{
+    StudentList list;
+    int choice;
+
+    do
+    {
+        cout << endl;
+        cout << "===== Student Record Management System =====" << endl;
+        cout << "1. Insert at Beginning" << endl;
+        cout << "2. Insert at End" << endl;
+        cout << "3. Insert After Roll Number" << endl;
+        cout << "4. Delete Record" << endl;
+        cout << "5. Display All Records" << endl;
+        cout << "6. Search by Roll Number" << endl;
+        cout << "7. Update Record" << endl;
+        cout << "8. Show Statistics" << endl;
+        cout << "0. Exit" << endl;
+        cout << "Enter your choice: ";
+        cin >> choice;
+        cout << endl;
+
+        if (choice == 1)
+        {
+            int r;
+            string n;
+            float m;
+            cout << "Enter Roll Number : ";
+            cin >> r;
+            cout << "Enter Name        : ";
+            cin.ignore();
+            getline(cin, n);
+            cout << "Enter Marks       : ";
+            cin >> m;
+            list.insertAtBeginning(r, n, m);
+        }
+        else if (choice == 2)
+        {
+            int r;
+            string n;
+            float m;
+            cout << "Enter Roll Number : ";
+            cin >> r;
+            cout << "Enter Name        : ";
+            cin.ignore();
+            getline(cin, n);
+            cout << "Enter Marks       : ";
+            cin >> m;
+            list.insertAtEnd(r, n, m);
+        }
+        else if (choice == 3)
+        {
+            int target, r;
+            string n;
+            float m;
+            cout << "Insert after Roll Number : ";
+            cin >> target;
+            cout << "Enter New Roll Number    : ";
+            cin >> r;
+            cout << "Enter Name               : ";
+            cin.ignore();
+            getline(cin, n);
+            cout << "Enter Marks              : ";
+            cin >> m;
+            list.insertAfterRoll(target, r, n, m);
+        }
+        else if (choice == 4)
+        {
+            int r;
+            cout << "Enter Roll Number to delete: ";
+            cin >> r;
+            list.deleteRecord(r);
+        }
+        else if (choice == 5)
+        {
+            list.display();
+        }
+        else if (choice == 6)
+        {
+            int r;
+            cout << "Enter Roll Number to search: ";
+            cin >> r;
+            list.search(r);
+        }
+        else if (choice == 7)
+        {
+            int r;
+            cout << "Enter Roll Number to update: ";
+            cin >> r;
+            list.updateRecord(r);
+        }
+        else if (choice == 8)
+        {
+            list.calculateStatistics();
+        }
+        else if (choice == 0)
+        {
+            cout << "Exiting system. Goodbye!" << endl;
+        }
+        else
+        {
+            cout << "Invalid choice. Please try again." << endl;
+        }
+
+    } while (choice != 0);
+
+    return 0;
+}

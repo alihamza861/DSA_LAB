@@ -1,0 +1,274 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Node
+{
+public:
+    string flightID;
+    Node* next;
+
+    Node(string id)
+    {
+        flightID = id;
+        next = NULL;
+    }
+};
+
+class Queue
+{
+    Node* front;
+    Node* rear;
+    int size;
+
+public:
+    Queue()
+    {
+        front = NULL;
+        rear = NULL;
+        size = 0;
+    }
+
+    void enqueue(string id)
+    {
+        Node* newNode = new Node(id);
+
+        if (rear == NULL)
+        {
+            front = newNode;
+            rear = newNode;
+        }
+        else
+        {
+            rear->next = newNode;
+            rear = newNode;
+        }
+
+        size++;
+    }
+
+    string dequeue()
+    {
+        if (front == NULL)
+        {
+            return "";
+        }
+
+        string id = front->flightID;
+        Node* temp = front;
+        front = front->next;
+
+        if (front == NULL)
+        {
+            rear = NULL;
+        }
+
+        delete temp;
+        size--;
+        return id;
+    }
+
+    bool isEmpty()
+    {
+        return front == NULL;
+    }
+
+    void display(string label)
+    {
+        cout << label << " : ";
+
+        if (front == NULL)
+        {
+            cout << "[ Empty ]";
+        }
+        else
+        {
+            Node* temp = front;
+            cout << "[ ";
+            while (temp != NULL)
+            {
+                cout << temp->flightID;
+                if (temp->next != NULL)
+                {
+                    cout << " -> ";
+                }
+                temp = temp->next;
+            }
+            cout << " ]";
+        }
+
+        cout << endl;
+    }
+
+    int getSize()
+    {
+        return size;
+    }
+};
+
+class AirportRunwaySystem
+{
+    Queue emergencyQueue;
+    Queue passengerQueue;
+    Queue cargoQueue;
+    int landingOrder;
+
+public:
+    AirportRunwaySystem()
+    {
+        landingOrder = 1;
+    }
+
+    void enqueue(string flightType, string flightID)
+    {
+        if (flightType == "Emergency" || flightType == "E")
+        {
+            emergencyQueue.enqueue(flightID);
+            cout << "ENQUEUED) Emergency Flight " << flightID << " added to Emergency Queue." << endl;
+        }
+        else if (flightType == "Passenger" || flightType == "P")
+        {
+            passengerQueue.enqueue(flightID);
+            cout << "[ENQUEUED] Passenger Flight " << flightID << " added to Passenger Queue." << endl;
+        }
+        else if (flightType == "Cargo" || flightType == "C")
+        {
+            cargoQueue.enqueue(flightID);
+            cout << "[ENQUEUED] Cargo Flight " << flightID << " added to Cargo Queue." << endl;
+        }
+        else
+        {
+            cout << "Unknown flight type: " << flightType << endl;
+        }
+    }
+
+    void dequeue()
+    {
+        string landed = "";
+        string category = "";
+
+        if (!emergencyQueue.isEmpty())
+        {
+            landed = emergencyQueue.dequeue();
+            category = "Emergency";
+        }
+        else if (!passengerQueue.isEmpty())
+        {
+            landed = passengerQueue.dequeue();
+            category = "Passenger";
+        }
+        else if (!cargoQueue.isEmpty())
+        {
+            landed = cargoQueue.dequeue();
+            category = "Cargo";
+        }
+        else
+        {
+            cout << "[RUNWAY] No flights are waiting to land." << endl;
+            return;
+        }
+
+        cout << "[LANDING #" << landingOrder << "] " << category << " Flight " << landed << " has landed." << endl;
+        landingOrder++;
+    }
+
+    void display()
+    {
+        cout << "       Current Runway Wait List       " << endl;
+        emergencyQueue.display("Emergency");
+        passengerQueue.display("Passenger");
+        cargoQueue.display("Cargo    ");
+    }
+
+    bool allEmpty()
+    {
+        return emergencyQueue.isEmpty() &&
+               passengerQueue.isEmpty() &&
+               cargoQueue.isEmpty();
+    }
+
+    void landAll()
+    {
+        cout << endl;
+        cout << "     Processing All Flights By Priority   " << endl;
+
+        while (!allEmpty())
+        {
+            dequeue();
+        }
+    }
+};
+
+int main()
+{
+    AirportRunwaySystem airport;
+    int choice;
+
+    cout << "    Airport Runway Scheduling System      " << endl;
+
+    cout << endl;
+    cout << "--- Simulating Flight Arrivals ---" << endl;
+    cout << endl;
+
+    airport.enqueue("Passenger", "P1");
+    airport.enqueue("Cargo", "C1");
+    airport.enqueue("Emergency", "E1");
+    airport.enqueue("Passenger", "P2");
+    airport.enqueue("Cargo", "C2");
+    airport.enqueue("Emergency", "E2");
+
+    cout << endl;
+    airport.display();
+
+    airport.landAll();
+
+    cout << endl;
+    cout << "        Manual Menu Operations            " << endl;
+
+    do
+    {
+        cout << endl;
+        cout << "1. Add Flight" << endl;
+        cout << "2. Land Next Flight (Dequeue)" << endl;
+        cout << "3. Display All Queues" << endl;
+        cout << "4. Land All Remaining Flights" << endl;
+        cout << "0. Exit" << endl;
+        cout << "Enter choice: ";
+        cin >> choice;
+        cout << endl;
+
+        if (choice == 1)
+        {
+            string type, id;
+            cout << "Enter Flight Type (Emergency / Passenger / Cargo): ";
+            cin >> type;
+            cout << "Enter Flight ID: ";
+            cin >> id;
+            airport.enqueue(type, id);
+        }
+        else if (choice == 2)
+        {
+            airport.dequeue();
+        }
+        else if (choice == 3)
+        {
+            airport.display();
+        }
+        else if (choice == 4)
+        {
+            airport.landAll();
+        }
+        else if (choice == 0)
+        {
+            cout << "Exiting system. Goodbye!" << endl;
+        }
+        else
+        {
+            cout << "Invalid choice. Try again." << endl;
+        }
+
+    } while (choice != 0);
+
+   
+    return 0;
+}

@@ -1,0 +1,190 @@
+#include <iostream>
+using namespace std;
+
+class Stack
+{
+    char data[1000];
+    int top;
+
+public:
+    Stack()
+    {
+        top = -1;
+    }
+
+    void push(char c)
+    {
+        data[++top] = c;
+    }
+
+    char pop()
+    {
+        return data[top--];
+    }
+
+    char peek()
+    {
+        return data[top];
+    }
+
+    bool isEmpty()
+    {
+        return top == -1;
+    }
+};
+
+void reverseString(string str)
+{
+    Stack s;
+    int len = str.length();
+
+    for (int i = 0; i < len; i++)
+    {
+        s.push(str[i]);
+    }
+
+    string result = "";
+    while (!s.isEmpty())
+    {
+        result += s.pop();
+    }
+
+    cout << "Input  : " << str << endl;
+    cout << "Output : " << result << endl;
+}
+
+void checkBalanced(string expr)
+{
+    Stack s;
+    bool ok = true;
+    int n = expr.length();
+
+    for (int i = 0; i < n; i++)
+    {
+        char ch = expr[i];
+
+        if (ch == '(' || ch == '[' || ch == '{')
+        {
+            s.push(ch);
+        }
+        else if (ch == ')' || ch == ']' || ch == '}')
+        {
+            if (s.isEmpty())
+            {
+                ok = false;
+                break;
+            }
+
+            char t = s.pop();
+
+            bool mismatch = (ch == ')' && t != '(') ||
+                            (ch == ']' && t != '[') ||
+                            (ch == '}' && t != '{');
+
+            if (mismatch)
+            {
+                ok = false;
+                break;
+            }
+        }
+    }
+
+    if (!s.isEmpty())
+    {
+        ok = false;
+    }
+
+    cout << "Input  : " << expr << endl;
+    cout << "Output : " << (ok ? "Balanced" : "Not Balanced") << endl;
+}
+
+int getPrecedence(char op)
+{
+    if (op == '+' || op == '-')
+    {
+        return 1;
+    }
+    if (op == '*' || op == '/')
+    {
+        return 2;
+    }
+    if (op == '^')
+    {
+        return 3;
+    }
+    return 0;
+}
+
+bool isOperand(char c)
+{
+    return (c >= 'a' && c <= 'z') ||
+           (c >= 'A' && c <= 'Z') ||
+           (c >= '0' && c <= '9');
+}
+
+void infixToPostfix(string expr)
+{
+    Stack s;
+    string postfix = "";
+    int n = expr.length();
+
+    for (int i = 0; i < n; i++)
+    {
+        char ch = expr[i];
+
+        if (isOperand(ch))
+        {
+            postfix += ch;
+        }
+        else if (ch == '(')
+        {
+            s.push(ch);
+        }
+        else if (ch == ')')
+        {
+            while (!s.isEmpty() && s.peek() != '(')
+            {
+                postfix += s.pop();
+            }
+            if (!s.isEmpty())
+            {
+                s.pop();
+            }
+        }
+        else
+        {
+            while (!s.isEmpty() && getPrecedence(s.peek()) >= getPrecedence(ch))
+            {
+                postfix += s.pop();
+            }
+            s.push(ch);
+        }
+    }
+
+    while (!s.isEmpty())
+    {
+        postfix += s.pop();
+    }
+
+    cout << "Input  : " << expr << endl;
+    cout << "Output : " << postfix << endl;
+}
+
+int main()
+{
+    cout << "1. Reverse a String " << endl;
+    reverseString("Hello");
+
+    cout << endl;
+
+    cout << "2. Check Balanced Parentheses " << endl;
+    checkBalanced("((a+b)*c)");
+    checkBalanced("((a+b)");
+
+    cout << endl;
+
+    cout << " 3. Infix to Postfix Conversion " << endl;
+    infixToPostfix("(a+b)*c");
+
+    return 0;
+}

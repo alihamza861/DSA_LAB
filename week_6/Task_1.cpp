@@ -1,7 +1,7 @@
 #include <iostream>
 using namespace std;
 
-// Node class
+
 class Node {
 public:
     int data;
@@ -13,7 +13,6 @@ public:
     }
 };
 
-// Singly Linked List class (no tail pointer)
 class SinglyLinkedList {
 private:
     Node* head;
@@ -23,7 +22,7 @@ public:
         head = nullptr;
     }
 
-    // Creates a new node and appends it to the end of the list
+   
     void CreateNode(int value) {
         Node* newNode = new Node(value);
         if (head == nullptr) {
@@ -38,7 +37,6 @@ public:
         cout << "Node with value " << value << " added.\n";
     }
 
-    // Traverses and prints all elements
     void Display() {
         if (head == nullptr) {
             cout << "List is empty.\n";

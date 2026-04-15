@@ -2,221 +2,200 @@
 #include <string>
 using namespace std;
 
-// Priority levels for reservation
-enum Priority { CASUAL = 1, ASSIGNMENT = 2, RESEARCH = 3 };
-
-string priorityToString(Priority p) {
-    switch (p) {
-        case RESEARCH:   return "Research";
-        case ASSIGNMENT: return "Assignment";
-        case CASUAL:     return "Casual";
-        default:         return "Unknown";
-    }
-}
-
-// Node representing a student reservation
 class StudentNode {
 public:
     string name;
-    Priority priority;
+    int rollNumber;
     StudentNode* next;
 
-    StudentNode(string studentName, Priority prio)
-        : name(studentName), priority(prio), next(nullptr) {}
+    StudentNode(string n, int roll) {
+        name = n;
+        rollNumber = roll;
+        next = nullptr;
+    }
 };
 
-// Reservation queue for a single book
-class ReservationQueue {
+class StudentList {
 private:
     StudentNode* head;
-    string bookTitle;
     int count;
 
 public:
-    ReservationQueue(string title) : head(nullptr), bookTitle(title), count(0) {}
+    StudentList() {
+        head = nullptr;
+        count = 0;
+    }
 
-    string getTitle() const { return bookTitle; }
+    void addStudent(string name, int roll) {
+        StudentNode* newStudent = new StudentNode(name, roll);
 
-    // Add a new student — inserts in priority order (higher priority = closer to front)
-    void addStudent(string name, Priority priority) {
-        StudentNode* newStudent = new StudentNode(name, priority);
-
-        // Insert at beginning if queue is empty or new student has higher priority than head
-        if (head == nullptr || priority > head->priority) {
-            newStudent->next = head;
+        if (head == nullptr) {
             head = newStudent;
         } else {
             StudentNode* temp = head;
-            while (temp->next != nullptr && temp->next->priority >= priority)
+            while (temp->next != nullptr) {
                 temp = temp->next;
-            newStudent->next = temp->next;
+            }
             temp->next = newStudent;
         }
         count++;
-        cout << "[" << bookTitle << "] " << name
-             << " added (Priority: " << priorityToString(priority) << ").\n";
+        cout << "Student Added: " << name << " (Roll: " << roll << ")\n";
     }
 
-    // Remove a student by name (cancellation)
-    void removeStudent(string name) {
+    void addAtBeginning(string name, int roll) {
+        StudentNode* newStudent = new StudentNode(name, roll);
+        newStudent->next = head;
+        head = newStudent;
+        count++;
+        cout << "Student Added at Beginning: " << name << " (Roll: " << roll << ")\n";
+    }
+
+    void deleteStudent(int roll) {
         if (head == nullptr) {
-            cout << "No reservations for \"" << bookTitle << "\".\n";
+            cout << "List is empty! No student to delete.\n";
             return;
         }
-        if (head->name == name) {
+
+        if (head->rollNumber == roll) {
             StudentNode* toDelete = head;
             head = head->next;
             delete toDelete;
             count--;
-            cout << name << " removed from reservation list of \"" << bookTitle << "\".\n";
+            cout << "Student with Roll " << roll << " deleted.\n";
             return;
         }
+
         StudentNode* temp = head;
-        while (temp->next != nullptr && temp->next->name != name)
+        while (temp->next != nullptr && temp->next->rollNumber != roll) {
             temp = temp->next;
+        }
 
         if (temp->next == nullptr) {
-            cout << name << " not found in reservation list of \"" << bookTitle << "\".\n";
+            cout << "Student with Roll " << roll << " not found!\n";
         } else {
             StudentNode* toDelete = temp->next;
             temp->next = toDelete->next;
             delete toDelete;
             count--;
-            cout << name << " removed from reservation list of \"" << bookTitle << "\".\n";
+            cout << "Student with Roll " << roll << " deleted.\n";
         }
     }
 
-    // Update a student's priority and re-sort
-    void updatePriority(string name, Priority newPriority) {
-        // Remove existing entry
+    void searchStudent(int roll) {
         if (head == nullptr) {
-            cout << "No reservations for \"" << bookTitle << "\".\n";
-            return;
-        }
-        bool found = false;
-        if (head->name == name) {
-            StudentNode* toDelete = head;
-            head = head->next;
-            delete toDelete;
-            count--;
-            found = true;
-        } else {
-            StudentNode* temp = head;
-            while (temp->next != nullptr && temp->next->name != name)
-                temp = temp->next;
-            if (temp->next != nullptr) {
-                StudentNode* toDelete = temp->next;
-                temp->next = toDelete->next;
-                delete toDelete;
-                count--;
-                found = true;
-            }
-        }
-
-        if (!found) {
-            cout << name << " not found in reservation list of \"" << bookTitle << "\".\n";
+            cout << "List is empty!\n";
             return;
         }
 
-        cout << name << "'s priority updated to " << priorityToString(newPriority) << ".\n";
-        addStudent(name, newPriority);
-    }
-
-    // Display the reservation list for this book
-    void display() {
-        cout << "\n=== Reservation List for \"" << bookTitle << "\" ===\n";
-        if (head == nullptr) {
-            cout << "  No reservations.\n";
-            return;
-        }
         StudentNode* temp = head;
-        int pos = 1;
+        int position = 1;
         while (temp != nullptr) {
-            cout << "  " << pos++ << ". " << temp->name
-                 << " [" << priorityToString(temp->priority) << "]\n";
+            if (temp->rollNumber == roll) {
+                cout << "Student Found! Name: " << temp->name 
+                     << ", Roll: " << temp->rollNumber 
+                     << ", Position: " << position << "\n";
+                return;
+            }
+            temp = temp->next;
+            position++;
+        }
+        cout << "Student with Roll " << roll << " not found!\n";
+    }
+
+    void displayAll() {
+        if (head == nullptr) {
+            cout << "\n=== STUDENT LIST ===\n";
+            cout << "No students in the list.\n";
+            return;
+        }
+
+        StudentNode* temp = head;
+        int serial = 1;
+        while (temp != nullptr) {
+            cout << serial++ << ". " << temp->name 
+                 << " (Roll: " << temp->rollNumber << ")\n";
             temp = temp->next;
         }
-        cout << "Total: " << count << " student(s)\n";
+        cout << "Total Students: " << count << "\n";
     }
 
-    // Count reservations
-    void countStudents() {
-        cout << "\"" << bookTitle << "\" has " << count << " student(s) in reservation list.\n";
+    void totalStudents() {
+        cout << "Total students in list: " << count << "\n";
     }
 
-    // Book returned — serve the student at the front of the queue
-    void bookReturned() {
-        if (head == nullptr) {
-            cout << "No one waiting for \"" << bookTitle << "\".\n";
-            return;
-        }
-        StudentNode* served = head;
-        head = head->next;
-        count--;
-        cout << "Book \"" << bookTitle << "\" returned. "
-             << served->name << " (" << priorityToString(served->priority)
-             << ") is now served and removed from queue.\n";
-        delete served;
-    }
-
-    ~ReservationQueue() {
+    ~StudentList() {
         StudentNode* temp = head;
-        while (temp) {
-            StudentNode* nxt = temp->next;
+        while (temp != nullptr) {
+            StudentNode* next = temp->next;
             delete temp;
-            temp = nxt;
+            temp = next;
         }
     }
 };
 
 int main() {
-    cout << "======================================\n";
-    cout << "  University Library Reservation System\n";
-    cout << "======================================\n\n";
+    StudentList list;
+    int choice, roll;
+    string name;
 
-    // Two book queues
-    ReservationQueue book1("Data Structures by Cormen");
-    ReservationQueue book2("Operating Systems by Tanenbaum");
+    do {
+        cout << "1. Add Student at End\n";
+        cout << "2. Add Student at Beginning\n";
+        cout << "3. Delete Student by Roll Number\n";
+        cout << "4. Search Student by Roll Number\n";
+        cout << "5. Display All Students\n";
+        cout << "6. Show Total Students\n";
+        cout << "7. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
 
-    // --- Book 1 Operations ---
-    cout << "--- Operations for Book 1 ---\n";
-    book1.addStudent("Ali Hassan", CASUAL);
-    book1.addStudent("Sara Ahmed", RESEARCH);
-    book1.addStudent("Usman Tariq", ASSIGNMENT);
-    book1.addStudent("Maryam Noor", RESEARCH);
-    book1.addStudent("Bilal Khan", CASUAL);
-    book1.display();
+        switch(choice) {
+            case 1:
+                cout << "Enter Student Name: ";
+                cin.ignore();
+                getline(cin, name);
+                cout << "Enter Roll Number: ";
+                cin >> roll;
+                list.addStudent(name, roll);
+                break;
 
-    cout << "\n-- Usman cancels reservation --\n";
-    book1.removeStudent("Usman Tariq");
-    book1.display();
+            case 2:
+                cout << "Enter Student Name: ";
+                cin.ignore();
+                getline(cin, name);
+                cout << "Enter Roll Number: ";
+                cin >> roll;
+                list.addAtBeginning(name, roll);
+                break;
 
-    cout << "\n-- Ali upgrades to Assignment priority --\n";
-    book1.updatePriority("Ali Hassan", ASSIGNMENT);
-    book1.display();
+            case 3:
+                cout << "Enter Roll Number to Delete: ";
+                cin >> roll;
+                list.deleteStudent(roll);
+                break;
 
-    cout << "\n-- Book returned, serving front student --\n";
-    book1.bookReturned();
-    book1.display();
-    book1.countStudents();
+            case 4:
+                cout << "Enter Roll Number to Search: ";
+                cin >> roll;
+                list.searchStudent(roll);
+                break;
 
-    // --- Book 2 Operations ---
-    cout << "\n--- Operations for Book 2 ---\n";
-    book2.addStudent("Zara Ali", ASSIGNMENT);
-    book2.addStudent("Hamza Sheikh", RESEARCH);
-    book2.addStudent("Fatima Malik", CASUAL);
-    book2.addStudent("Omar Farooq", RESEARCH);
-    book2.display();
+            case 5:
+                list.displayAll();
+                break;
 
-    cout << "\n-- Fatima cancels reservation --\n";
-    book2.removeStudent("Fatima Malik");
-    book2.display();
+            case 6:
+                list.totalStudents();
+                break;
 
-    cout << "\n-- Book returned twice --\n";
-    book2.bookReturned();
-    book2.bookReturned();
-    book2.display();
-    book2.countStudents();
+            case 7:
+                cout << "Exiting Program. Goodbye!\n";
+                break;
+
+            default:
+                cout << "Invalid choice! Try again.\n";
+        }
+    } while(choice != 7);
 
     return 0;
 }

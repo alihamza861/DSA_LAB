@@ -1,0 +1,29 @@
+#include<iostream>
+using namespace std;
+
+int maxArray(int arr[], int s) {
+
+    if (s == 1) {
+        return arr[0];
+    }
+
+    int maxRest = maxArray(arr, s - 1);
+
+    if (arr[s - 1] > maxRest) {
+        return arr[s - 1];
+    }
+    else {
+        return maxRest;
+    }
+}
+
+int main() {
+
+    int arr[5] = { 12, 23, 45, 67, 89 };
+
+    int max = maxArray(arr, 5);
+
+    cout << "Maximum element is: " << max;
+
+    return 0;
+}

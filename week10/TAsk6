@@ -1,0 +1,173 @@
+
+#include <iostream>
+using namespace std;
+
+struct Node
+{
+    int data;
+    Node* next;
+    Node* prev;
+
+    Node(int val)
+    {
+        data = val;
+        next = NULL;
+        prev = NULL;
+    }
+};
+
+class DoublyLinkedList
+{
+private:
+    Node* head;
+
+public:
+    DoublyLinkedList()
+    {
+        head = NULL;
+    }
+
+    // Insert at Beginning
+    void insertBeginning(int val)
+    {
+        Node* newNode = new Node(val);
+
+        if (head != NULL)
+        {
+            head->prev = newNode;
+            newNode->next = head;
+        }
+
+        head = newNode;
+    }
+
+    Node* insertEndRec(Node* temp, int val)
+    {
+        if (temp == NULL)
+            return new Node(val);
+
+        if (temp->next == NULL)
+        {
+            Node* newNode = new Node(val);
+            temp->next = newNode;
+            newNode->prev = temp;
+            return temp;
+        }
+
+        temp->next = insertEndRec(temp->next, val);
+        return temp;
+    }
+
+    void insertEnd(int val)
+    {
+        head = insertEndRec(head, val);
+    }
+
+
+    void printForward(Node* temp)
+    {
+        if (temp == NULL)
+        {
+            cout << endl;
+            return;
+        }
+
+        cout << temp->data << " ";
+        printForward(temp->next);
+    }
+
+   
+    void printReverse(Node* temp)
+    {
+        if (temp == NULL)
+            return;
+
+        printReverse(temp->next);
+        cout << temp->data << " ";
+    }
+
+    void displayForward()
+    {
+        printForward(head);
+    }
+
+    void displayReverse()
+    {
+        printReverse(head);
+        cout << endl;
+    }
+
+   
+    int searchRec(Node* temp, int val, int pos)
+    {
+        if (temp == NULL)
+            return -1;
+
+        if (temp->data == val)
+            return pos;
+
+        return searchRec(temp->next, val, pos + 1);
+    }
+
+    void search(int val)
+    {
+        int result = searchRec(head, val, 1);
+
+        if (result == -1)
+            cout << "Not Found\n";
+        else
+            cout << "Found at position: " << result << endl;
+    }
+
+ 
+    bool palindromeRec(Node* left, Node* right)
+    {
+        if (left == NULL || right == NULL)
+            return true;
+
+        if (left == right || right->next == left)
+            return true;
+
+        if (left->data != right->data)
+            return false;
+
+        return palindromeRec(left->next, right->prev);
+    }
+
+    Node* getLast(Node* temp)
+    {
+        if (temp == NULL || temp->next == NULL)
+            return temp;
+
+        return getLast(temp->next);
+    }
+
+    bool isPalindrome()
+    {
+        Node* tail = getLast(head);
+        return palindromeRec(head, tail);
+    }
+};
+
+int main()
+{
+    DoublyLinkedList dll;
+
+    dll.insertBeginning(1);
+    dll.insertEnd(2);
+    dll.insertEnd(2);
+    dll.insertEnd(1);
+
+    cout << "Forward: ";
+    dll.displayForward();
+
+    cout << "Reverse: ";
+    dll.displayReverse();
+
+    if (dll.isPalindrome())
+        cout << "Palindrome List";
+    else
+        cout << "Not Palindrome";
+
+    return 0;
+}

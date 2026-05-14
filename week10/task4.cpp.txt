@@ -1,0 +1,73 @@
+#include<iostream>
+using namespace std;
+
+class Node {
+public:
+    int data;
+    Node* next;
+
+    Node(int value) {
+        data = value;
+        next = NULL;
+    }
+};
+
+class LinkedList {
+private:
+    Node* head;
+
+public:
+
+    LinkedList() {
+        head = NULL;
+    }
+
+    void insert(int value) {
+
+        Node* newNode = new Node(value);
+
+        if (head == NULL) {
+            head = newNode;
+            return;
+        }
+
+        Node* temp = head;
+
+        while (temp->next != NULL) {
+            temp = temp->next;
+        }
+
+        temp->next = newNode;
+    }
+
+    void printRecursive(Node* temp) {
+
+        if (temp == NULL) {
+            return;
+        }
+
+        cout << temp->data << " ";
+
+        printRecursive(temp->next);
+    }
+
+    void display() {
+        printRecursive(head);
+    }
+};
+
+int main() {
+
+    LinkedList list;
+
+    list.insert(10);
+    list.insert(20);
+    list.insert(30);
+    list.insert(40);
+
+    cout << "Linked List Elements: ";
+
+    list.display();
+
+    return 0;
+}
